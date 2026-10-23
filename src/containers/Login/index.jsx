@@ -112,16 +112,24 @@ export default function Login() {
 
             if (view === 'login') {
                 const response = await api.post('/sessions', credentials)
-                const { token } = response.data
+                const { id, name, email: userEmail, token } = response.data
 
                 if (typeof token !== 'string' || !token) {
                     throw new Error('O servidor não retornou um token de acesso válido.')
                 }
 
+                if (typeof name !== 'string' || !name.trim()) {
+                    throw new Error('O servidor não retornou um nome de usuário válido.')
+                }
+
                 const remember = formData.get('remember') === 'on'
                 window.localStorage.removeItem('token')
+                window.localStorage.removeItem('user')
                 window.sessionStorage.removeItem('token')
-                window[remember ? 'localStorage' : 'sessionStorage'].setItem('token', token)
+                window.sessionStorage.removeItem('user')
+                const storage = window[remember ? 'localStorage' : 'sessionStorage']
+                storage.setItem('token', token)
+                storage.setItem('user', JSON.stringify({ id, name: name.trim(), email: userEmail }))
 
                 window.location.assign('/admin')
             } else if (view === 'signup') {

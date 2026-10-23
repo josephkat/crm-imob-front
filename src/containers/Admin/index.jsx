@@ -3,6 +3,7 @@ import './admin.css'
 import Cadastrar from './Imoveis/cadastrar/cadastrar.jsx'
 import Editar from './Imoveis/editar/editar.jsx'
 import Listar from './Imoveis/listar/listar.jsx'
+import useLoggedInUser from '../../hooks/useLoggedInUser.js'
 
 const navigation = [
   { icon: '◫', label: 'Meu Painel' },
@@ -51,6 +52,7 @@ function SidebarLink({ item, onClick }) {
 export default function Admin() {
   const [isRegistering, setIsRegistering] = useState(false)
   const [propertyToEdit, setPropertyToEdit] = useState(null)
+  const user = useLoggedInUser()
 
   function showPropertyList() {
     setPropertyToEdit(null)
@@ -59,7 +61,9 @@ export default function Admin() {
 
   function logOut() {
     window.localStorage.removeItem('token')
+    window.localStorage.removeItem('user')
     window.sessionStorage.removeItem('token')
+    window.sessionStorage.removeItem('user')
     window.location.assign('/')
   }
 
@@ -111,7 +115,7 @@ export default function Admin() {
 
           <div className="user-pill" aria-label="Usuário atual">
             <span className="avatar-circle">◔</span>
-            <span>JDM IMÓVEIS</span>
+            <span className="user-name" title={user?.name}>{user?.name ?? 'JDM IMÓVEIS'}</span>
           </div>
         </header>
 
