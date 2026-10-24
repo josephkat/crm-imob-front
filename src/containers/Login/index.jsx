@@ -3,6 +3,8 @@ import * as Yup from 'yup';
 import './login.css';
 
 import { api } from '../../services/api';
+import { toast } from 'react-toastify';
+import { useNavigate } from 'react-router-dom';
 
 const loginSchema = Yup.object({
     email: Yup.string()
@@ -72,6 +74,7 @@ function getApiErrorMessage(error) {
 }
 
 export default function Login() {
+    const navigate = useNavigate();
     const [resetLink] = useState(() => {
         const searchParams = new URLSearchParams(window.location.search)
 
@@ -111,7 +114,14 @@ export default function Login() {
             setIsSubmitting(true)
 
             if (view === 'login') {
-                const response = await api.post('/sessions', credentials)
+                const response = await toast.promise(
+                    api.post('/sessions', credentials),
+                    {
+                        pending: 'verificando seus dados',
+                        success: 'Seja bem-vindo',
+                        error: 'Email ou Senha Incorretos',
+                    }
+                )
                 const { id, name, email: userEmail, token } = response.data
 
                 if (typeof token !== 'string' || !token) {
@@ -131,7 +141,7 @@ export default function Login() {
                 storage.setItem('token', token)
                 storage.setItem('user', JSON.stringify({ id, name: name.trim(), email: userEmail }))
 
-                window.location.assign('/admin')
+                navigate('/admin')
             } else if (view === 'signup') {
                 await api.post('/users', {
                     name: credentials.name,
